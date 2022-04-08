@@ -1,6 +1,8 @@
 import { Component } from "react"
-import logo from './logo.svg'
 import './App.css'
+
+import CardList from "./components/card-list/card-list.component";
+import SearchBox from "./components/search-box/search-box.component";
 
 // setState is async
 class App extends Component {
@@ -11,8 +13,6 @@ class App extends Component {
       monsters: [],
       searchField: ''
     }
-
-    console.log('constructor')
   }
 
   // best place to put api request
@@ -28,8 +28,6 @@ class App extends Component {
       .catch(err => {
         console.error(err)
       })
-
-    console.log('componentDidMount')
   }
 
   // anonymous functions re-initializes every mount
@@ -41,8 +39,6 @@ class App extends Component {
   }
 
   render() {
-    console.log('render')
-
     // make readable
     const { monsters, searchField } = this.state
     const { onSearchChange } = this
@@ -53,14 +49,11 @@ class App extends Component {
 
     return (
       <div className="App">
-        <input
-          className="search-box"
-          type="search"
-          placeholder="Search monsters..."
-          onChange={onSearchChange}/>
-        {
-          filteredMonsters.map((monster) => (<h1 key={monster.id}>{ monster.name }</h1>))
-        }
+        <h1 className="app-title">Monster Rolodex</h1>
+
+        <SearchBox className="search-box" placeholder="Search monsters..." onChangeHandler={onSearchChange} />
+
+        <CardList monsters={filteredMonsters} />
       </div>
     )
   }
