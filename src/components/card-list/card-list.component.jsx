@@ -14,7 +14,6 @@ class CardList extends Component {
             return <Card monster={monster}/>
           })
         }
-        }
       </div>
     )
   }
