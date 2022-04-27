@@ -1,62 +1,59 @@
-import { Component } from "react"
+import { useEffect, useState } from "react"
 import './App.css'
 
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
 
-// setState is async
-class App extends Component {
-  constructor() {
-    super();
+// note: entire function re-runs everytime state is updated
+// but is triggered only when state changes
+// every re-render will re-run the entire function
+const App = () => {
+  const [searchField, setSearchField] = useState('')
+  const [monsters, setMonsters] = useState([]) // array of 2 values: [value, setValue]
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters)
 
-    this.state = {
-      monsters: [],
-      searchField: ''
-    }
-  }
-
-  // best place to put api request
-  componentDidMount() {
+  // pass state or props in deps that will cause function
+  // to re-run
+  useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
-      // convert response to json
       .then(response => response.json())
-      .then(users => this.setState(() => {
-        return {
-          monsters: users
-        }
-      }))
+      .then(users => setMonsters(users))
       .catch(err => {
         console.error(err)
       })
-  }
+  }, [])
 
-  // anonymous functions re-initializes every mount
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLocaleLowerCase()
-    this.setState(() => {
-      return { searchField }
-    })
-  }
-
-  render() {
-    // make readable
-    const { monsters, searchField } = this.state
-    const { onSearchChange } = this
-
-    const filteredMonsters = monsters.filter((monster) => {
+  useEffect(() => {
+    const newFilteredMonsters = monsters.filter((monster) => {
       return monster.name.toLocaleLowerCase().includes(searchField)
     })
 
-    return (
-      <div className="App">
-        <h1 className="app-title">Monster Rolodex</h1>
+    setFilteredMonsters(newFilteredMonsters)
+  }, [monsters, searchField])
 
-        <SearchBox className="search-box" placeholder="Search monsters..." onChangeHandler={onSearchChange} />
-
-        <CardList monsters={filteredMonsters} />
-      </div>
-    )
+  // anonymous functions re-initializes every mount
+  const onSearchChange = (event) => {
+    const searchFieldString = event.target.value.toLocaleLowerCase()
+    setSearchField(searchFieldString)
   }
+
+  // this function re-runs everytime, memory leak
+  // const filteredMonsters = monsters.filter((monster) => {
+  //   return monster.name.toLocaleLowerCase().includes(searchField)
+  // })
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Monster Rolodex</h1>
+
+      <SearchBox
+        className="search-box"
+        placeholder="Search monsters..."
+        onChangeHandler={onSearchChange} />
+
+      <CardList monsters={filteredMonsters} />
+    </div>
+  )
 }
 
 export default App
