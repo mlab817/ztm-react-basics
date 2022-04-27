@@ -1,26 +1,42 @@
-import { useEffect, useState } from "react"
-import './App.css'
+import {ChangeEvent, useEffect, useState} from "react"
 
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
+
+import { getData } from "./utils/data.utils";
+
+import './App.css'
+
+export type Monster = {
+  id: string;
+  name: string;
+  email: string;
+}
 
 // note: entire function re-runs everytime state is updated
 // but is triggered only when state changes
 // every re-render will re-run the entire function
 const App = () => {
   const [searchField, setSearchField] = useState('')
-  const [monsters, setMonsters] = useState([]) // array of 2 values: [value, setValue]
+  const [monsters, setMonsters] = useState<Monster[]>([]) // array of 2 values: [value, setValue]
   const [filteredMonsters, setFilteredMonsters] = useState(monsters)
 
   // pass state or props in deps that will cause function
   // to re-run
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(response => response.json())
-      .then(users => setMonsters(users))
-      .catch(err => {
-        console.error(err)
-      })
+    // fetch('https://jsonplaceholder.typicode.com/users')
+    //   .then(response => response.json())
+    //   .then(users => setMonsters(users))
+    //   .catch(err => {
+    //     console.error(err)
+    //   })
+
+    const fetchUsers = async () => {
+      const users = await getData<Monster[]>('https://jsonplaceholder.typicode.com/users')
+      setMonsters(users)
+    }
+
+    fetchUsers()
   }, [])
 
   useEffect(() => {
@@ -32,7 +48,7 @@ const App = () => {
   }, [monsters, searchField])
 
   // anonymous functions re-initializes every mount
-  const onSearchChange = (event) => {
+  const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const searchFieldString = event.target.value.toLocaleLowerCase()
     setSearchField(searchFieldString)
   }
